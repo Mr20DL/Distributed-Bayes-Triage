@@ -1,3 +1,7 @@
+#Archivos de texto
+APDescription.txt
+MTPs-Main-Container.txt
+
 # Maven
 target/
 *.class
