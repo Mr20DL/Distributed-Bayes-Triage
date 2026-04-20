@@ -65,6 +65,25 @@ public class AgenteInterfaz extends Agent {
         }).start();
     }
 
+    private void buscarTokenizer() {
+        // Quitamos el println de "Buscando..." para que no ensucie la consola
+        DFAgentDescription template = new DFAgentDescription();
+        ServiceDescription sd = new ServiceDescription();
+        sd.setType("tokenizer-service");
+        template.addServices(sd);
+
+        try {
+            DFAgentDescription[] result = DFService.search(this, template);
+            if (result.length > 0) {
+                tokenizerAID = result[0].getName();
+                System.out.println("\n[SISTEMA] Tokenizer vinculado con éxito.");
+                System.out.print("Ingrese bug: "); 
+            }
+        } catch (FIPAException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void enviar(String texto) {
         ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
         msg.addReceiver(tokenizerAID);
