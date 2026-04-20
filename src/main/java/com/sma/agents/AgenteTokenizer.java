@@ -47,6 +47,23 @@ public class AgenteTokenizer extends Agent {
         });
     }
 
+    private void registrarEnDF() {
+        DFAgentDescription dfd = new DFAgentDescription();
+        dfd.setName(getAID());
+
+        ServiceDescription sd = new ServiceDescription();
+        sd.setType("tokenizer-service");
+        sd.setName("tokenizer");
+
+        dfd.addServices(sd);
+
+        try {
+            DFService.register(this, dfd);
+            System.out.println("[TOKENIZER] Registrado en DF");
+        } catch (FIPAException e) {
+            e.printStackTrace();
+        }
+    }
 
     private List<String> procesar(String texto) {
         texto = texto.toLowerCase();
@@ -66,5 +83,14 @@ public class AgenteTokenizer extends Agent {
         return resultado;
     }
 
+    @Override
+    protected void takeDown() {
+        try {
+            DFService.deregister(this);
+        } catch (FIPAException e) {
+            e.printStackTrace();
+        }
 
+        System.out.println("[TOKENIZER] Finalizando");
+    }
 }
