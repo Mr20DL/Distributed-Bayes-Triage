@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  # PLATAFORMA 1: Main Container (Aloja AMS, DF, Interfaz y Tokenizer)
+  plataforma1:
+    build: .
+    container_name: p1_main_container
+    stdin_open: true # permite mantener abierto el stdin para la lectura de la consola
+    tty: true
+    ports:
+      - "1099:1099"
+    # Ejecutamos JADE iniciando los agentes de tus compañeros
+    command: mvn exec:java -Dexec.mainClass="jade.Boot" -Dexec.args="-port 1099 Interfaz:com.sma.agents.AgenteInterfaz;Tokenizer:com.sma.agents.AgenteTokenizer"
+
+  # PLATAFORMA 2: Container Periférico (Alojará al Clasificador y Repositorio)
+  plataforma2:
+    build: .
+    container_name: p2_remote_container
+    depends_on:
+      - plataforma1
+    # Se conecta al main-container usando el nombre del servicio de Docker
+    command: mvn exec:java -Dexec.mainClass="jade.Boot" -Dexec.args="-container -host plataforma1 -port 1099"

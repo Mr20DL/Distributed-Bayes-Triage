@@ -12,3 +12,7 @@ buildNumber.properties
 
 # VS Code
 .vscode/
+
+# JADE Runtime Files
+MTPs-*.txt
+APDescription.txt
