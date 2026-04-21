@@ -4,7 +4,6 @@ services:
     container_name: main-container-node
     stdin_open: true
     tty: true
-    # Quitamos el -gui y dejamos solo el puerto
     command: mvn exec:java -Dexec.mainClass="jade.Boot" -Dexec.args="-port 1099 Interfaz:com.sma.agents.AgenteInterfaz;Tokenizer:com.sma.agents.AgenteTokenizer;Clasificador:com.sma.agents.AgenteClasificador"
     ports:
       - "1099:1099"
@@ -14,5 +13,5 @@ services:
     container_name: remote-container-node
     depends_on:
       - main-platform
-    # IMPORTANTE: Usamos el nombre 'main-platform' como host
-    command: mvn exec:java -Dexec.mainClass="jade.Boot" -Dexec.args="-container -host main-platform -port 1099 Repositorio:com.sma.agents.AgenteRepositorio"
+    # Usamos sh -c con las comillas correctas
+    command: sh -c 'sleep 10 && mvn exec:java -Dexec.mainClass="jade.Boot" -Dexec.args="-container -host main-platform -port 1099 Repositorio:com.sma.agents.AgenteRepositorio"'

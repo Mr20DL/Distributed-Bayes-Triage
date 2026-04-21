@@ -5,6 +5,8 @@ import java.util.Map;
 
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
+import jade.core.behaviours.TickerBehaviour;
+import jade.core.behaviours.TickerBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
@@ -15,11 +17,11 @@ public class AgenteClasificador extends Agent {
     private Map<String, Double> bajaProb = new HashMap<>();
 
     protected void setup() {
-        System.out.println("CLASIFICADOR: Agente iniciado. Esperando 10 segundos para sincronizar con el repositorio...");
+        System.out.println("CLASIFICADOR: Agente iniciado. Buscando repositorio...");
         
-        // Fase 1: Buscar el repositorio después de 10 segundos
-        addBehaviour(new jade.core.behaviours.WakerBehaviour(this, 10000) {
-            protected void onWake() {
+        // Fase 1: Buscar el repositorio usando TickerBehaviour
+        addBehaviour(new TickerBehaviour(this, 5000) {
+            protected void onTick() {
                 DFAgentDescription template = new DFAgentDescription();
                 ServiceDescription sd = new ServiceDescription();
                 sd.setType("modelo-datos");
@@ -32,8 +34,9 @@ public class AgenteClasificador extends Agent {
                         req.setContent("GET_MODEL");
                         send(req);
                         System.out.println("CLASIFICADOR: Solicitando modelo al repositorio...");
+                        stop(); // Detener el Ticker si ya lo encontró
                     } else {
-                        System.out.println("CLASIFICADOR ERROR: No se encontró el repositorio en el DF. ¿Está encendido?");
+                        System.out.println("CLASIFICADOR ERROR: No se encontró el repositorio en el DF. Reintentando...");
                     }
                 } catch (Exception e) { e.printStackTrace(); }
             }
