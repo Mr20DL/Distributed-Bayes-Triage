@@ -1,28 +1,18 @@
-version: '3.8'
 services:
   main-platform:
     build: .
     container_name: main-container-node
-    command: mvn exec:java -Dexec.mainClass="jade.Boot" -Dexec.args="-gui -agents Interfaz:com.sma.agents.AgenteInterfaz;Tokenizer:com.sma.agents.AgenteTokenizer;Clasificador:com.sma.agents.AgenteClasificador"
+    stdin_open: true
+    tty: true
+    # Quitamos el -gui y dejamos solo el puerto
+    command: mvn exec:java -Dexec.mainClass="jade.Boot" -Dexec.args="-port 1099 Interfaz:com.sma.agents.AgenteInterfaz;Tokenizer:com.sma.agents.AgenteTokenizer;Clasificador:com.sma.agents.AgenteClasificador"
     ports:
       - "1099:1099"
-    networks:
-      jade-net:
-        ipv4_address: 172.20.0.2
 
   remote-platform:
     build: .
     container_name: remote-container-node
     depends_on:
       - main-platform
-    command: mvn exec:java -Dexec.mainClass="jade.Boot" -Dexec.args="-container -host 172.20.0.2 -agents Repositorio:com.sma.agents.AgenteRepositorio"
-    networks:
-      jade-net:
-        ipv4_address: 172.20.0.3
-
-networks:
-  jade-net:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
+    # IMPORTANTE: Usamos el nombre 'main-platform' como host
+    command: mvn exec:java -Dexec.mainClass="jade.Boot" -Dexec.args="-container -host main-platform -port 1099 Repositorio:com.sma.agents.AgenteRepositorio"

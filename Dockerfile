@@ -1,5 +1,5 @@
-FROM maven:3.8-openjdk-17
+FROM maven:3.8.5-eclipse-temurin-17
 WORKDIR /app
-COPY . .
+COPY pom.xml .
+COPY src ./src
 RUN mvn clean compile
-# El comando de inicio se sobreescribirá en el compose
