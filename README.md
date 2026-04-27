@@ -1,13 +1,17 @@
-# 🛡️ SMA Bug Triage - Sistema de Priorización con Naïve Bayes
+# 🛡️ SMA Bug Triage – Priorización con Naïve Bayes sobre JADE
 
-Este proyecto implementa un **Sistema Multi-Agente (SMA)** distribuido utilizando el framework **JADE**. El objetivo es automatizar el triaje de reportes de errores (bugs) clasificándolos en **Alta** o **Baja** prioridad mediante una lógica probabilística de **Naïve Bayes**.
+Sistema Multi‑Agente distribuido que clasifica reportes de bugs en **Alta** o **Baja** prioridad utilizando un modelo probabilístico de **Naïve Bayes** (suma de log‑probabilidades).  
+La arquitectura se despliega con **Docker Compose** en dos contenedores.
 
-## 🏗️ Arquitectura Distribuida
+## 🏗️ Arquitectura
 
-El sistema está diseñado para operar en un entorno de red distribuido, simulado mediante dos contenedores lógicos de JADE:
+| Contenedor        | Rol                        | Agentes contenidos                      |
+| ----------------- | -------------------------- | --------------------------------------- |
+| `main-platform`   | Contenedor principal (GUI) | `Interfaz`, `Tokenizer`, `Clasificador` |
+| `remote-platform` | Contenedor remoto          | `Repositorio` (modelo Bayesiano)        |
 
-1. **Main-Container (Nodo de Operaciones):** Aloja la Interfaz de usuario, el Tokenizador de texto y el Clasificador (Cerebro).
-2. **Container-1 (Nodo de Datos):** Aloja el Repositorio de Modelos, simulando un servidor remoto de conocimiento.
+- El contenedor principal expone el puerto **1099** para que el remoto se conecte.
+- El descubrimiento de servicios se realiza a través del **Directory Facilitator (DF)**.
 
 ## 🤖 Agentes del Sistema
 
@@ -18,16 +22,44 @@ El sistema está diseñado para operar en un entorno de red distribuido, simulad
 
 ## 🚀 Guía de Ejecución
 
-El proyecto requiere **Maven** y un **JDK (17+)**.
+El proyecto requiere **Docker** , **Maven** y un **JDK (17+)**.
 
-1. **Compilar el proyecto:**
+1. **Clonar el repositorio**
    ```bash
-   mvn clean compile
+   git clone https://github.com/Mr20DL/Distributed-Bayes-Triage
+   cd Distributed-Bayes-Triage
    ```
-2. **Iniciar el Main Container:**
-   Ejecutar run_main_container.bat. Esto abrirá la GUI de JADE y preparará los agentes operativos.
-3. **Iniciar el Nodo Remoto:**
-   Ejecutar run_remote_container.bat. El Repositorio se registrará en el DF y el Clasificador descargará automáticamente el modelo.
+2. **Construir y levantar los contenedores**
+   ```bash
+   docker-compose up -d
+   ```
+   Esto iniciará los dos contenedores en segundo plano. La GUI de JADE no se muestra, pero toda la interacción se hace por consola.
+3. **Adjuntarse al contenedor principal para ingresar bugs**
+   ```bash
+   docker attach main-container-node
+   ```
+   Verás el prompt del agente Interfaz. Escribe un reporte de bug y presiona Enter.
+4. **Ver logs del repositorio remoto**
+   ```bash
+   docker logs -f remote-container-node
+   ```
+5. **Detener los contenedores**
+   ```bash
+   docker-compose down
+   ```
+
+## 🧪 Ejemplo de uso
+
+```text
+INTERFAZ: Iniciada. Escriba el reporte del bug:
+Error critico en servidor de login
+TOKENIZER: [error critico servidor login] -> [error critico servidor login]
+CLASIFICADOR: Conocimiento cargado. Listo para clasificar.
+>>> RESULTADO DEL TRIAJE: ALTA PRIORIDAD
+   Es correcta la clasificacion? (S/N):
+```
+
+Si responde N, se envía una corrección de aprendizaje al repositorio remoto.
 
 ## 📊 Protocolo FIPA-ACL
 
@@ -35,4 +67,5 @@ Se utilizan protocolos de comunicación estándar para garantizar la interoperab
 
 - **FIPA-Request:** Para la carga del modelo y solicitudes de clasificación.
 - **FIPA-Inform:** Para la entrega de resultados y actualizaciones de feedback.
+- **FIPA-Confirm:** Para el acuse de recibo del feedback por parte del repositorio.
 - **Directory Facilitator (DF):** Descubrimiento dinámico de servicios.
